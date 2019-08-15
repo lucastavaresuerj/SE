@@ -8,7 +8,7 @@ int but_dc = 0;// diz o estado e quando foi precionado
 
 int Delay = 250;
 int inicio_pis = 0;
-int intervalo = 2000;
+int intervalo = 1000;
 int fim_pis = 0;
 int led = HIGH;
 
