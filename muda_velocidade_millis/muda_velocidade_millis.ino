@@ -6,9 +6,9 @@
 int but_ac = 0;// diz o estado e quando foi precionado
 int but_dc = 0;// diz o estado e quando foi precionado
 
-
+int Delay = 250;
 int inicio_pis = 0;
-int intervalo = 1000;
+int intervalo = 2000;
 int fim_pis = 0;
 int led = HIGH;
 
@@ -30,8 +30,8 @@ void loop() {
     digitalWrite(PIN_LED_OUT, led); //led da protoboard
   }
 
-  if ( (but_ac) && (but_dc) && (millis() - but_ac <500) && (millis() - but_dc <500) ) {// 
-    digitalWrite(PIN_LED_OUT, LOW);
+  if ( (but_ac) && (but_dc) && (millis() - but_ac <500) && (millis() - but_dc <500) ) { // testa se os butoes foram apertados
+    digitalWrite(PIN_LED_OUT, LOW);                                                     // depois quando foram 
     while(1);
   }
   else {
@@ -43,7 +43,7 @@ void loop() {
     }
     else if(!digitalRead(PIN_BUT_AC)) {//caso o botao nao tenha sido apertado antes, mas foi agora
       but_ac = millis();// muda o estado para precionado e quando foi
-      intervalo = intervalo - 100;// altera o intervalo
+      intervalo = intervalo - Delay;// altera o intervalo
       digitalWrite(PIN_LED_IN, HIGH); //led da placa, ignore nao influencia
     }
     
@@ -55,13 +55,9 @@ void loop() {
     }
     else if(!digitalRead(PIN_BUT_DC)) {//caso o botao nao tenha sido apertado antes, mas foi agora
       but_dc = millis();// muda o estado para precionado e quando foi
-      intervalo = intervalo + 100;// altera o intervalo
+      intervalo = intervalo + Delay;// altera o intervalo
       digitalWrite(PIN_LED_IN, HIGH); //led da placa, ignore nao influencia
     }
   }
-  
-  
-
-  
-  
+    
 }
