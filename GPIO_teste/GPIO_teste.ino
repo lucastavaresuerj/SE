@@ -15,7 +15,7 @@ void loop() {
         estado = 2;
         PORTB &= ~(1 << 3); //led low
         tempo = millis();
-      } else if( !(PIND & (1 << 2)) ) { // BTN precionado
+      } else if( !(PIND & (1 << 2)) ) { // BTN pressionado
         estado = 3;
       } break;
      
@@ -24,7 +24,7 @@ void loop() {
         estado = 1;
         PORTB |= 1 << 3; //led high
         tempo = millis();
-      } else if( !(PIND & (1 << 2)) ) { // BTN precionado
+      } else if( !(PIND & (1 << 2)) ) { // BTN pressionado
         estado = 3;
       } break;
       
