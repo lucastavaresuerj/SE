@@ -1,7 +1,3 @@
-//#define PIN_LED_IN 13
-//#define PIN_LED_OUT 11
-//#define PIN_BNT_AC 2
-//#define PIN_BNT_DC 4
 #define DELAY 100
 
 int btn_ac = HIGH;// diz o estado b1
@@ -11,26 +7,19 @@ int estado = 1;
 int intervalo = 2000;
 unsigned int conta500 = 0;
 unsigned int contaTempo = 0;
-//unsigned int contaFim = 0;
 
 void setup() {
-  // put your setup code here, to run once:
-  //pinMode(PIN_LED_IN, OUTPUT);
-  //pinMode(PIN_LED_OUT, OUTPUT);
-  //pinMode(PIN_BUT_AC, INPUT);
-  //pinMode(PIN_BUT_DC, INPUT);
   DDRB |= 1 << 5; //pin_led_in input
   DDRB |= 1 << 3; //pin_led_out input
   DDRD &= ~(1 << 2); //pin_btn_ac output
   DDRD &= ~(1 << 4); //pin_btn_dc output
-  //digitalWrite(PIN_LED_OUT, HIGH);
+
   PORTB |= 1 << 3; //pin_led_out high
   contaTempo = millis();
   Serial.begin(9600);
 }
 
 void loop() {
-  //contaFim = millis();
   switch (estado) {
     case 1: //led_aceso
       Serial.print("-- estado 1 --\n");
