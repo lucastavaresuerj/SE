@@ -17,11 +17,9 @@
 int estado;
 int valPiezo;
 bool butONOFF;
-int leds; //1,2,3,4 piezo,ultrasonico,vibracao,butao
-bool sensores[4];
-bool ativado[4];
+int leSensores;
 
-int sequencia[10] = {1,3,2,4,1,3,3,2,4,2};
+int sequencia[10] = {3,2,1,4,1,3,3,2,4,2};
 int nivelAtual;
 int navegaSequencia;
 
@@ -67,171 +65,117 @@ void setup() {
   estado = 1;
 }
 
-void testaLeds() {
-  digitalWrite(pinLedPiezo,HIGH);
-  digitalWrite(pinLedUs,HIGH);
-  digitalWrite(pinLedVib,HIGH);
-  digitalWrite(pinLedBtn,HIGH);
-  digitalWrite(pinLedONOFF,HIGH);
-}
-
-void testaVib() {
-  if (digitalRead (pinSenVib)) { // If a signal was noticed, the LED will be on
-    digitalWrite (pinLedVib, HIGH);
+void pisca(int l) {
+  if (l>0){
+    digitalWrite(pinLedONOFF,HIGH);
+    delay(100);
+    digitalWrite(pinLedONOFF,LOW);
+    delay(100);
+    pisca(l-1);
   } else {
-    digitalWrite (pinLedVib, LOW);
-  }
-}
-
-void testaPiezo() {
-  valPiezo = analogRead(pinSenPiezo);  // Read the voltage
-  Serial.println(valPiezo, DEC); // Print the voltage to the terminal
-  if(valPiezo > 800) {
-   digitalWrite(pinLedPiezo,HIGH);
-  } else {
-   digitalWrite(pinLedPiezo,LOW);
-  }
-}
-
-void testaUs() {
-  distancia = hcsr04(); 
-  if(distancia <= 10){
-    digitalWrite(pinLedUs,HIGH);
-  }else{
-    digitalWrite(pinLedUs,LOW);
-  }
-}
-
-void testaBtn() {
-  if(!digitalRead(pinSenBtn)){
-    digitalWrite(pinLedBtn, HIGH);
-  } else {
-    digitalWrite(pinLedBtn, LOW);
-  }
-  if(!digitalRead(pinBtnONOFF)){
-    digitalWrite(pinLedONOFF, HIGH);
-  } else {
-    digitalWrite(pinLedONOFF, LOW);
+    digitalWrite(pinLedONOFF,HIGH);
   }
 }
 
 void desligaLeds() {
-  switch (leds) { // piezo,ultrasonico,vibracao,butao
-    case (1):
-      digitalWrite(pinLedPiezo,LOW);
-      break;
-    case (2):
-      digitalWrite(pinLedUs,LOW);
-      break;
-    case (3):
-      digitalWrite (pinLedVib, LOW);
-      break;
-    case (4):
-      digitalWrite(pinLedBtn, LOW);
-      break;  
-    default:
-      break;  
-  }
+  digitalWrite(pinLedPiezo,LOW);
+  digitalWrite(pinLedUs,LOW);
+  digitalWrite (pinLedVib, LOW);
+  digitalWrite(pinLedBtn, LOW);
 }
 
 bool lePiezo() {
   valPiezo = analogRead(pinSenPiezo);  // Read the voltage
   //Serial.println(valPiezo, DEC); // Print the voltage to the terminal
-  if(valPiezo > 800 && !sensores[0]) {
+  if(valPiezo > 800 ) {
    digitalWrite(pinLedPiezo,HIGH);
-   leds = 1;
-   sensores[0] = true;
+   //leds = 1;
    return true;
   } else {
-    if (valPiezo > 800) {
-      ativado[0] = true;
       return false;
-    } else {
-      ativado[0] = false;
-      return false;
-    }
   }
 }
 
 bool leUs() {
   distancia = hcsr04(); 
-  if(distancia <= 10 && !sensores[1]){
+  if(distancia <= 10 ){
     digitalWrite(pinLedUs,HIGH);
-    leds = 2;
-    sensores[1] = true;
+    //leds = 2;
     return true;
   }else {
-    if(distancia<=10){
-      ativado[1] = true;
-      return false;
-    } else {
-      ativado[1] = false;
-      return false;
-    }
+    return false;
   }
 }
 
 bool leVib() {
-  if (digitalRead (pinSenVib) && !sensores[2]) { // If a signal was noticed, the LED will be on
+  if (digitalRead (pinSenVib) ) { // If a signal was noticed, the LED will be on
     digitalWrite (pinLedVib, HIGH);
-    leds = 3;
-    sensores[2] = true;
+    //leds = 3;
     return true;
-  } else {
-    if (digitalRead (pinSenVib)) {
-      ativado[2] = true;
-      return false;
-    } else {
-      ativado[3] = false;
-      return false;
-    }
+  } else { 
+     return false;
   }
 }
 
 bool leBtn() {
-  if(!digitalRead(pinSenBtn) && !sensores[3]){
+  if(!digitalRead(pinSenBtn) ){
     digitalWrite(pinLedBtn, HIGH);
-    leds = 4;
-    sensores[3] = true;
+    //leds = 4;
     return true;
   } else {
-    if (!digitalRead(pinSenBtn) ){
-      ativado[3] = true;
-      return false;
-    } else {
-      ativado[3] = false;
-      return false;
-    }
+     return false;
   }
 }
 
-bool algumSensorAtivado() {
-  return (sensores[0] || sensores[1] || sensores[2] || sensores[3]);
-}
 
 void sinaliza_sensor (int s) {
   switch (s) {
     case 1: //piezo
       digitalWrite(pinLedPiezo,HIGH);
+      digitalWrite(pinLedUs,LOW);
+      digitalWrite(pinLedVib,LOW);
+      digitalWrite(pinLedBtn,LOW);
+      break;
     case 2: //ultrasonico
+      digitalWrite(pinLedPiezo,LOW);
       digitalWrite(pinLedUs,HIGH);
+      digitalWrite(pinLedVib,LOW);
+      digitalWrite(pinLedBtn,LOW);
+      break;
     case 3: //vibracao
+      digitalWrite(pinLedPiezo,LOW);
+      digitalWrite(pinLedUs,LOW);
       digitalWrite(pinLedVib,HIGH);
+      digitalWrite(pinLedBtn,LOW);
+      break;
     case 4: //botao
+      digitalWrite(pinLedPiezo,LOW);
+      digitalWrite(pinLedUs,LOW);
+      digitalWrite(pinLedVib,LOW);
       digitalWrite(pinLedBtn,HIGH);
+      break;
+    default:
+      digitalWrite(pinLedPiezo,LOW);
+      digitalWrite(pinLedUs,LOW);
+      digitalWrite(pinLedVib,LOW);
+      digitalWrite(pinLedBtn,LOW);
+      break;
+      
   }
   
 }
 
 int le_sensores(int s) {
+  //A ORDEM DOS SENSORES IMPORTA POR CAUSA DA INTERACAO ENTE BOTAO E VIBRACAO
+  
+  senBtn = leBtn(); //4
   senPiezo = lePiezo(); //1
   senUs = leUs(); //2
   senVib = leVib(); //3
-  senBtn = leBtn(); //4
 
   switch (s){
     case 1:
-      if ( senPiezo && !senUs  && !senVib && !senBtn) {
+      if ( senPiezo ) {
         return true;
       } else if ( senUs || senVib || senBtn) {
         return false;
@@ -239,7 +183,7 @@ int le_sensores(int s) {
         return 2;
       } break;
     case 2:
-      if ( !senPiezo && senUs && !senVib && !senBtn) {
+      if (  senUs ) {
         return true;
       } else if ( senPiezo || senVib || senBtn){
         return false;
@@ -247,7 +191,7 @@ int le_sensores(int s) {
         return 2;
       } break;
     case 3:
-      if ( !senPiezo && !senUs && senVib && !senBtn) {
+      if ( senVib ) {
         return true;
       } else if ( senPiezo || senUs || senBtn){
         return false;
@@ -255,7 +199,7 @@ int le_sensores(int s) {
         return 2;
       } break;
     case 4:
-      if ( !senPiezo && !senUs && !senVib && senBtn) {
+      if ( senBtn) {
         return true;
       } else if ( senPiezo || senUs || senVib ){
         return false;
@@ -263,7 +207,7 @@ int le_sensores(int s) {
         return 2;
       } break;
     case 5:
-      return ativado[0] || ativado[1] || ativado[2] || ativado[3];
+      return senPiezo || senUs || senVib || senBtn;
 
   }
     
@@ -271,26 +215,25 @@ int le_sensores(int s) {
 
 void loop() {
   // put your main code here, to run repeatedly:
-  //testaLeds();
-  //testaVib();
-  //testaPiezo();
-  //testaUs();
-  //testaBtn();
-
   switch (estado) {
     
-    case 1: //desligado
+    case 1: //desligado 
+      Serial.println("-- estado 1 --");
+      Serial.print(nivelAtual);Serial.print(" | ");Serial.print(navegaSequencia);Serial.print(" | ");Serial.println(sequencia[navegaSequencia]);
         if(!digitalRead(pinBtnONOFF) && butONOFF) {
           butONOFF = LOW;
+          digitalWrite(pinLedONOFF,HIGH);
       } else if(digitalRead(pinBtnONOFF) != butONOFF) {
           estado = 2;
           tmpNivel = millis();
-          butONOFF = digitalRead(pinBtnONOFF);
-          nivelAtual = 1;
+          butONOFF = HIGH;   
+          nivelAtual = 1; //mudar para 1
           navegaSequencia = 0;
       } break;
     
     case 2: //nivel
+      Serial.println("-- estado 2 --");
+      Serial.print(nivelAtual);Serial.print(" | ");Serial.print(navegaSequencia);Serial.print(" | ");Serial.println(sequencia[navegaSequencia]);
         if( (millis() - tmpNivel)>=4000 ){
           estado = 3;
           tmpSinaliza = millis();
@@ -299,14 +242,27 @@ void loop() {
       } else if(digitalRead(pinBtnONOFF) != butONOFF) {
           estado = 1;
           tmpNivel = millis();
-          butONOFF = digitalRead(pinBtnONOFF);
+          butONOFF = HIGH;
+          digitalWrite(pinLedONOFF,LOW);
+          desligaLeds();
       } break;
       
     case 3: //sinaliza
-        if (navegaSequencia == nivelAtual) {
+      Serial.println("-- estado 3 --");
+      Serial.print(nivelAtual);Serial.print(" | ");Serial.print(navegaSequencia);Serial.print(" | ");Serial.println(sequencia[navegaSequencia]);
+        if(!digitalRead(pinBtnONOFF) && butONOFF) {
+          butONOFF = LOW;
+      } else if(digitalRead(pinBtnONOFF) != butONOFF) {
+          estado = 1;
+          tmpNivel = millis();
+          butONOFF = HIGH;
+          digitalWrite(pinLedONOFF,LOW);
+          desligaLeds();
+      } else if ( (navegaSequencia == nivelAtual) && (millis() - tmpSinaliza > 500) ){
           estado = 4;
           navegaSequencia = 0;
-      } else if (millis() - tmpSinaliza){
+          sinaliza_sensor(0);
+      } else if (millis() - tmpSinaliza > 500){ 
           sinaliza_sensor(sequencia[navegaSequencia]);
           tmpSinaliza = millis();
           navegaSequencia++;
@@ -315,28 +271,44 @@ void loop() {
       } else if(digitalRead(pinBtnONOFF) != butONOFF) {
           estado = 1;
           tmpNivel = millis();
-          butONOFF = digitalRead(pinBtnONOFF);
+          butONOFF = HIGH;
+          desligaLeds();
+          digitalWrite(pinLedONOFF,LOW);
       } break;
     
     case 4: //analisa
-        if(navegaSequencia == nivelAtual) {
-          estado = 2;
-          nivelAtual++;
-          navegaSequencia = 0;
-      } else if (algumSensorAtivado()) {
-          if (!le_sensores(5)) {
-            navegaSequencia++;
-          }
-          break;
-      } else if(le_sensores(sequencia[navegaSequencia])==true) {
-          navegaSequencia++;
-          tmpLe = millis();
-      } else if(!digitalRead(pinBtnONOFF) && butONOFF) {
+      Serial.println("-- estado 4 --");
+      Serial.print(nivelAtual);Serial.print(" | ");Serial.print(navegaSequencia);Serial.print(" | ");Serial.println(sequencia[navegaSequencia]);
+      leSensores = le_sensores(sequencia[navegaSequencia]);
+      //Serial.print("le sensores: ");Serial.println(leSensores);
+      
+        if(!digitalRead(pinBtnONOFF) && butONOFF) {
           butONOFF = LOW;
       } else if(digitalRead(pinBtnONOFF) != butONOFF) {
           estado = 1;
           tmpNivel = millis();
-          butONOFF = digitalRead(pinBtnONOFF);
+          butONOFF = HIGH;
+          digitalWrite(pinLedONOFF,LOW);
+          desligaLeds();
+      } else if(navegaSequencia == nivelAtual) {//acertou tudo
+          navegaSequencia = 0;
+          estado = 2;
+          desligaLeds();
+          tmpNivel = millis();
+          nivelAtual++;
+          pisca(5);
+      } else if (leSensores==2) { //alguem ativado?
+          desligaLeds();
+          break;
+      } else if(leSensores==true) { //pode ser false, true ou 2
+          navegaSequencia++;
+      } else if(leSensores==false) { // erouuu //pode ser false true ou 2
+          estado = 2;
+          nivelAtual = 1;
+          pisca(2);
+          navegaSequencia = 0;
+      } else if(leSensores==2) {
+          break;
       } break;
   }
   
