@@ -18,6 +18,7 @@ int estado;
 int valPiezo;
 bool butONOFF;
 int leSensores;
+bool isAtivo;
 
 int sequencia[10] = {3,2,1,4,1,3,3,2,4,2};
 int nivelAtual;
@@ -58,8 +59,12 @@ void setup() {
 
   digitalWrite(pinSenVib, HIGH);
 
-  butONOFF = HIGH;
+  //piezo 0
+  ADMUX  |= (1 << REFS0);       // usa Vcc como referencia
+  ADCSRA |= (1 << ADEN);        // habilita o ADC
 
+
+  butONOFF = HIGH;
   Serial.begin(9600);
   
   estado = 1;
@@ -85,8 +90,16 @@ void desligaLeds() {
 }
 
 bool lePiezo() {
-  valPiezo = analogRead(pinSenPiezo);  // Read the voltage
+  /* RETIRAR LEITURA PELO ANALOGREAD
+  valPiezo = analogRead(pinSenPiezo);  // Read the voltage*/
   //Serial.println(valPiezo, DEC); // Print the voltage to the terminal
+  
+  ADMUX   &= ~(1<<pinSenPiezo);
+  ADCSRA |= (1 << ADSC);        // inicia a conversao
+  while(ADCSRA & (1 << ADSC));  // espera a conversao
+
+  int valPiezo = ADCL;                 // tem que ser lido antes do ADCH
+  valPiezo = (ADCH << 8) + valPiezo;
   if(valPiezo > 800 ) {
    digitalWrite(pinLedPiezo,HIGH);
    //leds = 1;
@@ -129,40 +142,10 @@ bool leBtn() {
 
 
 void sinaliza_sensor (int s) {
-  switch (s) {
-    case 1: //piezo
-      digitalWrite(pinLedPiezo,HIGH);
-      digitalWrite(pinLedUs,LOW);
-      digitalWrite(pinLedVib,LOW);
-      digitalWrite(pinLedBtn,LOW);
-      break;
-    case 2: //ultrasonico
-      digitalWrite(pinLedPiezo,LOW);
-      digitalWrite(pinLedUs,HIGH);
-      digitalWrite(pinLedVib,LOW);
-      digitalWrite(pinLedBtn,LOW);
-      break;
-    case 3: //vibracao
-      digitalWrite(pinLedPiezo,LOW);
-      digitalWrite(pinLedUs,LOW);
-      digitalWrite(pinLedVib,HIGH);
-      digitalWrite(pinLedBtn,LOW);
-      break;
-    case 4: //botao
-      digitalWrite(pinLedPiezo,LOW);
-      digitalWrite(pinLedUs,LOW);
-      digitalWrite(pinLedVib,LOW);
-      digitalWrite(pinLedBtn,HIGH);
-      break;
-    default:
-      digitalWrite(pinLedPiezo,LOW);
-      digitalWrite(pinLedUs,LOW);
-      digitalWrite(pinLedVib,LOW);
-      digitalWrite(pinLedBtn,LOW);
-      break;
-      
-  }
-  
+    digitalWrite(pinLedPiezo,s==1);
+    digitalWrite(pinLedUs,s==2);
+    digitalWrite(pinLedVib,s==3);
+    digitalWrite(pinLedBtn,s==4);
 }
 
 int le_sensores(int s) {
@@ -297,16 +280,21 @@ void loop() {
           tmpNivel = millis();
           nivelAtual++;
           pisca(5);
-      } else if (leSensores==2) { //alguem ativado?
+      } else if (leSensores==2) { //2 significa ninguem ativado
           desligaLeds();
+          isAtivo = false;
+          break;
+      }  else if (isAtivo) { //alguem ativado?
           break;
       } else if(leSensores==true) { //pode ser false, true ou 2
           navegaSequencia++;
+          isAtivo = true;
       } else if(leSensores==false) { // erouuu //pode ser false true ou 2
           estado = 2;
           nivelAtual = 1;
           pisca(2);
           navegaSequencia = 0;
+          isAtivo = false;
       } else if(leSensores==2) {
           break;
       } break;
